@@ -1,3 +1,6 @@
+mod one;
+
 fn main() {
-    println!("Hello, world!");
+    one::one();
+    one::two();
 }
