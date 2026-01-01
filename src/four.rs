@@ -1,5 +1,71 @@
+fn count_adjacent_rolls(surrounding: Vec<Option<&str>>) -> u32 {
+    let mut total: u32 = 0;
+
+    for position in surrounding {
+        if position.is_none() || position.unwrap() != "@" {
+            continue;
+        }
+
+        total += 1;
+    }
+
+    return total;
+}
+
+fn get_grid<'a>() -> Vec<Vec<&'a str>> {
+    let lines: Vec<&str> = get_input()
+        .split("\n")
+        .filter(|s| *s != "")
+        .collect();
+    let mut grid: Vec<Vec<&str>> = Vec::new();
+
+    for _ in 0..lines[0].len() as u32 {
+        grid.push(Vec::new());
+    }
+
+    for line in &lines {
+        for x in 0..line.len() as u32 {
+            let x_u = x as usize;
+            grid[x_u].push(line.get(x_u..x_u + 1).unwrap());
+        }
+    }
+
+    let mut y = 0;
+    while y < 138 {
+        for x in 0..lines[0].len() as u32 {
+            assert_eq!(
+                grid[x as usize][y as usize],
+                lines[y as usize].get(x as usize..x as usize + 1).unwrap()
+            );
+        }
+        y += 1;
+    }
+
+    return grid;
+}
+
 fn get_input<'a>() -> &'a str {
     return include_str!("input/4.txt");
+}
+
+fn get_removal_coords(grid: &Vec<Vec<&str>>) -> Vec<(u32, u32)> {
+    let mut removal_coords: Vec<(u32, u32)> = Vec::new();
+    for x in 0..138 {
+        for y in 0..138 {
+            if grid[x][y] != "@" {
+                continue;
+            }
+
+            let surrounding: Vec<Option<&str>> = get_surrounding(&grid, x as i32, y as i32);
+            let count = count_adjacent_rolls(surrounding);
+
+            if count < 4 {
+                removal_coords.push((x as u32, y as u32));
+            }
+        }
+    }
+
+    return removal_coords;
 }
 
 fn get_surrounding<'a>(grid: &'a Vec<Vec<&'a str>>, x: i32, y: i32) -> Vec<Option<&'a str>> {
@@ -80,48 +146,14 @@ fn get_surrounding<'a>(grid: &'a Vec<Vec<&'a str>>, x: i32, y: i32) -> Vec<Optio
     return surrounding;
 }
 
-fn count_adjacent_rolls(surrounding: Vec<Option<&str>>) -> u32 {
-    let mut total: u32 = 0;
-
-    for position in surrounding {
-        if position.is_none() || position.unwrap() != "@" {
-            continue;
-        }
-
-        total += 1;
+fn remove_rolls(grid: &mut Vec<Vec<&str>>, removal_coords: Vec<(u32, u32)>) {
+    for coords in removal_coords {
+        grid[coords.0 as usize][coords.1 as usize] = ".";
     }
-
-    return total;
 }
 
 pub fn one() {
-    let lines: Vec<&str> = get_input()
-        .split("\n")
-        .filter(|s| *s != "")
-        .collect();
-    let mut grid: Vec<Vec<&str>> = Vec::new();
-
-    for _ in 0..lines[0].len() as u32 {
-        grid.push(Vec::new());
-    }
-
-    for line in &lines {
-        for x in 0..line.len() as u32 {
-            let x_u = x as usize;
-            grid[x_u].push(line.get(x_u..x_u + 1).unwrap());
-        }
-    }
-
-    let mut y = 0;
-    while y < 138 {
-        for x in 0..lines[0].len() as u32 {
-            assert_eq!(
-                grid[x as usize][y as usize],
-                lines[y as usize].get(x as usize..x as usize + 1).unwrap()
-            );
-        }
-        y += 1;
-    }
+    let grid: Vec<Vec<&str>> = get_grid();
     
     let mut total: u32 = 0;
     for x in 0..138 {
@@ -140,4 +172,22 @@ pub fn one() {
     }
 
     println!("{total}");
+}
+
+pub fn two() {
+    let mut grid: Vec<Vec<&str>> = get_grid();
+    let mut total_removable = 0;
+
+    loop {
+        let removal_coords = get_removal_coords(&grid);
+
+        if removal_coords.len() == 0 {
+            break;
+        }
+
+        total_removable += removal_coords.len();
+        remove_rolls(&mut grid, removal_coords);
+    }
+
+    println!("{total_removable}");
 }
