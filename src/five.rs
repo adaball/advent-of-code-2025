@@ -71,6 +71,18 @@ fn in_range(id: u64, ranges: &Vec<(u64, u64)>) -> bool {
     return false;
 }
 
+fn overlap(a: (u64, u64), b: (u64, u64)) -> bool {
+    if a.0 == b.0 && a.1 == b.1 {
+        return true;
+    } else if a.0 < b.1 && a.1 > b.0 {
+        return true;
+    } else if a.0 == b.1 || a.1 == b.0 {
+        return true;
+    }
+
+    return false;
+}
+
 pub fn one() {
     let input: Vec<&str> = get_input()
         .split("\n")
@@ -107,18 +119,6 @@ pub fn one() {
     }
 
     println!("{fresh_count}");
-}
-
-fn overlap(a: (u64, u64), b: (u64, u64)) -> bool {
-    if a.0 == b.0 && a.1 == b.1 {
-        return true;
-    } else if a.0 < b.1 && a.1 > b.0 {
-        return true;
-    } else if a.0 == b.1 || a.1 == b.0 {
-        return true;
-    }
-
-    return false;
 }
 
 pub fn two() {
