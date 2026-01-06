@@ -17,4 +17,5 @@ fn main() {
     five::one();
     five::two();
     six::one();
+    six::two();
 }
